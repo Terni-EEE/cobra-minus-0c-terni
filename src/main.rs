@@ -1,24 +1,78 @@
-use eframe::egui::{self, CentralPanel, Context, FontFamily, FontId, TextEdit, TextStyle, TopBottomPanel, Vec2, ViewportBuilder};
+// use std::default;
+
+use eframe::egui::{self, CentralPanel, Context, TextEdit, TextStyle, TopBottomPanel, Vec2, ViewportBuilder};
+
+// enum IDETheme {
+//     DARK, 
+//     LIGHT,
+// }
+
+// impl default::Default for IDETheme {
+//     fn default() -> Self {
+//         IDETheme::DARK
+//     }
+// }
 
 #[derive(Default)]
 struct IDE {
     code: String,
+    // theme: IDETheme
 }
 
 impl eframe::App for IDE {
-    fn update(&mut self, ctx: &Context, _frame: &mut eframe::Frame) {
-        TopBottomPanel::top("menu_bar").show(ctx, |ui| {
+    fn update(&mut self, context: &Context, _frame: &mut eframe::Frame) {
+        let Self { code } = self;
+    
+        TopBottomPanel::top("menu_bar").show(context, |ui| {
             egui::menu::bar(ui, |ui| {
                 ui.menu_button("File", |ui| {
                     if ui.button("New").clicked() {
                         println!("NEW BUTTON CLICKED.");
                     }
-                })
+
+                    if ui.button("Open").clicked() {
+                        println!("OPEN BUTTON CLICKED.");
+                    }
+
+                    if ui.button("Save").clicked() {
+                        println!("SAVE BUTTON CLICKED.");
+                    }
+
+                    if ui.button("Save As").clicked() {
+                        println!("SAVE AS BUTTON CLICKED.");
+                    }
+
+                    if ui.button("Close").clicked() {
+                        context.send_viewport_cmd(egui::ViewportCommand::Close);
+                    }
+                });
+
+                ui.menu_button("Edit", |ui| {
+                    if ui.button("Cut").clicked() {
+                        println!("CUT BUTTON CLICKED.");
+                    }
+
+                    if ui.button("Copy").clicked() {
+                        println!("COPY BUTTON CLICKED.");
+                    }
+
+                    if ui.button("Paste").clicked() {
+                        println!("PASTE BUTTON CLICKED.");
+                    }
+
+                    if ui.button("Select All").clicked() {
+                        println!("SELECT ALL BUTTON CLICKED.");
+                    }
+
+                    if ui.button("Delete").clicked() {
+                        println!("DELETE BUTTON CLICKED.");
+                    }
+                });
             })
         });
 
-        CentralPanel::default().show(ctx, |ui| {
-            let code_body = TextEdit::multiline(&mut self.code)
+        CentralPanel::default().show(context, |ui| {
+            let code_body = TextEdit::multiline(code)
                 .font(TextStyle::Monospace)
                 .code_editor()
                 .desired_rows(10)
