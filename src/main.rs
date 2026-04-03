@@ -1,9 +1,11 @@
-use eframe::egui::{self, CentralPanel, Context, TopBottomPanel, Vec2, ViewportBuilder};
+use std::collections::BTreeMap;
+
+use eframe::egui::{self, CentralPanel, FontData, FontDefinitions, FontFamily, MenuBar, Panel, Style, Vec2, ViewportBuilder, Visuals};
 
 use egui_code_editor::{self, CodeEditor, ColorTheme, Syntax};
 
 // enum IDETheme {
-//     DARK, 
+//     DARK,
 //     LIGHT,
 // }
 
@@ -20,11 +22,17 @@ struct IDE {
 }
 
 impl eframe::App for IDE {
-    fn update(&mut self, context: &Context, _frame: &mut eframe::Frame) {
+    fn logic(&mut self, context: &egui::Context, _frame: &mut eframe::Frame) {
+        add_anonymous_pro_font(context);
+    }
+
+    fn ui(&mut self, ui: &mut egui::Ui, _frame: &mut eframe::Frame) {
         let Self { code } = self;
-    
-        TopBottomPanel::top("menu_bar").show(context, |ui| {
-            egui::menu::bar(ui, |ui| {
+
+        ui.set_theme(egui::Theme::Dark);
+
+        Panel::top("menu_bar").show_inside(ui, |ui| {
+            MenuBar::new().ui(ui, |ui| {
                 ui.menu_button("File", |ui| {
                     if ui.button("New").clicked() {
                         println!("NEW BUTTON CLICKED.");
@@ -34,6 +42,8 @@ impl eframe::App for IDE {
                         println!("OPEN BUTTON CLICKED.");
                     }
 
+                    ui.separator();
+
                     if ui.button("Save").clicked() {
                         println!("SAVE BUTTON CLICKED.");
                     }
@@ -42,8 +52,10 @@ impl eframe::App for IDE {
                         println!("SAVE AS BUTTON CLICKED.");
                     }
 
+                    ui.separator();
+
                     if ui.button("Close").clicked() {
-                        context.send_viewport_cmd(egui::ViewportCommand::Close);
+                        todo!();
                     }
                 });
 
@@ -52,6 +64,8 @@ impl eframe::App for IDE {
                         println!("CUT BUTTON CLICKED.");
                     }
 
+                    ui.separator();
+
                     if ui.button("Copy").clicked() {
                         println!("COPY BUTTON CLICKED.");
                     }
@@ -59,6 +73,8 @@ impl eframe::App for IDE {
                     if ui.button("Paste").clicked() {
                         println!("PASTE BUTTON CLICKED.");
                     }
+
+                    ui.separator();
 
                     if ui.button("Select All").clicked() {
                         println!("SELECT ALL BUTTON CLICKED.");
@@ -71,22 +87,34 @@ impl eframe::App for IDE {
             })
         });
 
-        CentralPanel::default().show(context, |ui: &mut egui::Ui| {
+        CentralPanel::default().show_inside(ui, |ui: &mut egui::Ui| {
             let mut code_body = CodeEditor::default()
                 .id_source("code editor")
-                .with_rows(12)
+                .with_rows(1)
                 .with_fontsize(14.0)
-                .with_theme(ColorTheme::GRUVBOX)
+                .with_theme(ColorTheme::GITHUB_DARK)
                 .with_syntax(Syntax::python())
                 .with_numlines(true);
 
             code_body.show(ui, code);
         });
     }
-    
-    fn ui(&mut self, ui: &mut egui::Ui, frame: &mut eframe::Frame) {
-        println!("This is unneccesary.");
-    }
+}
+
+fn add_anonymous_pro_font(context: &egui::Context) {
+    let mut fonts = FontDefinitions::default();
+
+    fonts.font_data.insert(
+        "AnonymousPro".to_owned(), 
+        std::sync::Arc::new(FontData::from_static(include_bytes!("../assets/fonts/Anonymous_Pro/AnonymousPro-Regular.ttf"))),
+    );
+
+    let mut anonymous_pro_font_family = BTreeMap::new();
+    anonymous_pro_font_family.insert(FontFamily::Name("AnonymousPro".into()), vec!["AnonymousPro".to_owned()]);
+
+    fonts.families.append(&mut anonymous_pro_font_family);
+
+    context.set_fonts(fonts);
 }
 
 fn main() -> Result<(), eframe::Error> {
@@ -102,6 +130,17 @@ fn main() -> Result<(), eframe::Error> {
     eframe::run_native(
         "Cobra Minus 0C.5",
         options,
-        Box::new(|_| Ok(Box::<IDE>::default())),
+        Box::new(|creation_context| {
+            let style = Style {
+                visuals: Visuals::dark(),
+                ..Style::default()
+            };
+
+            let theme = egui::Theme::Dark;
+
+            creation_context.egui_ctx.set_style_of(theme, style);
+
+            Ok(Box::<IDE>::default())
+        }),
     )
 }
