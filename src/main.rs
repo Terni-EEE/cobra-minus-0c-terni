@@ -1,6 +1,6 @@
-// use std::default;
+use eframe::egui::{self, CentralPanel, Context, TopBottomPanel, Vec2, ViewportBuilder};
 
-use eframe::egui::{self, CentralPanel, Context, TextEdit, TextStyle, TopBottomPanel, Vec2, ViewportBuilder};
+use egui_code_editor::{self, CodeEditor, ColorTheme, Syntax};
 
 // enum IDETheme {
 //     DARK, 
@@ -71,20 +71,21 @@ impl eframe::App for IDE {
             })
         });
 
-        CentralPanel::default().show(context, |ui| {
-            let code_body = TextEdit::multiline(code)
-                .font(TextStyle::Monospace)
-                .code_editor()
-                .desired_rows(10)
-                .lock_focus(true)
-                .desired_width(f32::INFINITY);
+        CentralPanel::default().show(context, |ui: &mut egui::Ui| {
+            let mut code_body = CodeEditor::default()
+                .id_source("code editor")
+                .with_rows(12)
+                .with_fontsize(14.0)
+                .with_theme(ColorTheme::GRUVBOX)
+                .with_syntax(Syntax::python())
+                .with_numlines(true);
 
-            let code_body_response = ui.add_sized(ui.available_size(), code_body);
-
-            if code_body_response.changed() {
-                println!("NEW TEXT ADDED.");
-            }
+            code_body.show(ui, code);
         });
+    }
+    
+    fn ui(&mut self, ui: &mut egui::Ui, frame: &mut eframe::Frame) {
+        println!("This is unneccesary.");
     }
 }
 
