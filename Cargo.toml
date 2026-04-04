@@ -5,6 +5,8 @@ edition = "2024"
 
 [dependencies]
 eframe = "0.34.1"
+egui-file-dialog = "0.13.0"
 egui_code_editor = "0.2.23"
+egui_dialogs = "0.3.8"
 egui_extras = { version = "0.34.1", features = ["all_loaders"] }
 image = { version = "0.25", features = ["jpeg", "png"] }
